@@ -1,6 +1,8 @@
 import { GetStaticPropsContext, InferGetStaticPropsType } from "next";
 import style from "./[id].module.css";
 import fetchOneMovie from "@/lib/fetch-one-movie";
+import { notFound } from "next/navigation";
+import { useRouter } from "next/router";
 
 export const getStaticPaths = () => {
   return {
@@ -10,12 +12,21 @@ export const getStaticPaths = () => {
       { params: { id: "3" } },
     ],
     fallback: true,
+    // false: 404 Notfound
+    // blocking: SSR 방식
+    // true: SSR 방식 + 데이터가 없는 폴백 상태의 페이지부터 반환
   };
 };
 
 export const getStaticProps = async (context: GetStaticPropsContext) => {
   const id = context.params!.id;
   const movie = await fetchOneMovie(Number(id));
+
+  if (!movie) {
+    return {
+      notFound: true,
+    };
+  }
 
   return {
     props: {
@@ -27,7 +38,10 @@ export const getStaticProps = async (context: GetStaticPropsContext) => {
 export default function Page({
   movie,
 }: InferGetStaticPropsType<typeof getStaticProps>) {
-  if (!movie) return "문제가 발생했습니다. 다시 시도하세요..";
+  const router = useRouter();
+  if (router.isFallback) return "로딩중입니다.";
+  if (!movie) return "문제가 발생했습니다. 다시 시도하세요.";
+
   const {
     title,
     releaseDate,
