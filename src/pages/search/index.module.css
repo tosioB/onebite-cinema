@@ -1,0 +1,14 @@
+.search_container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.search_container > a {
+  width: calc(33.333% - 6px);
+  aspect-ratio: 179 / 256;
+}
+
+.search_container > a > img {
+  height: 100%;
+}
